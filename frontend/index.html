@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Task Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">DOCKER COMPOSE PRACTICE PROJECT</p>
+      <h1>Task Manager</h1>
+      <p class="subtitle">A full-stack app running across frontend, backend and database containers.</p>
+    </header>
+    <form id="task-form">
+      <input id="task-title" type="text" placeholder="What do you need to do?" required>
+      <button type="submit">Add task</button>
+    </form>
+    <p id="message" role="status"></p>
+    <section>
+      <div class="section-heading">
+        <h2>Your tasks</h2>
+        <span id="task-count">0 tasks</span>
+      </div>
+      <ul id="task-list"></ul>
+    </section>
+    <footer>Frontend: Nginx · Backend: Node.js + Express · Database: PostgreSQL</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
