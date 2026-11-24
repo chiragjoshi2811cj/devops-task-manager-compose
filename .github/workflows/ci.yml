@@ -1,0 +1,77 @@
+
+name: Task Manager CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+env:
+  DB_PASSWORD: ci-test-password
+
+jobs:
+  build-and-test:
+    name: Build and Integration Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Download source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Validate Docker Compose configuration
+      - name: Validate Docker Compose
+        run: docker compose config --quiet
+
+      # Step 3: Build frontend and backend images
+      - name: Build Docker images
+        run: docker compose build
+
+      # Step 4: Start all application services
+      - name: Start application
+        run: docker compose up -d
+
+      # Step 5: Verify application health
+      - name: Check API health
+        run: |
+          curl --fail --silent --show-error \
+            --retry 20 \
+            --retry-delay 3 \
+            --retry-connrefused \
+            http://localhost:8080/api/health
+
+      # Step 6: Test task creation
+      - name: Test task creation
+        run: |
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"title":"GitHub Actions CI Test"}' \
+            http://localhost:8080/api/tasks
+
+      # Step 7: Verify task retrieval
+      - name: Test task retrieval
+        run: |
+          curl --fail --silent --show-error \
+            http://localhost:8080/api/tasks \
+            | grep -F "GitHub Actions CI Test"
+
+      # Step 8: Display service status
+      - name: Check container status
+        if: always()
+        run: docker compose ps
+
+      # Step 9: Display logs if a step fails
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      # Step 10: Clean up
+      - name: Stop application
+        if: always()
+        run: docker compose down -v --remove-orphans
